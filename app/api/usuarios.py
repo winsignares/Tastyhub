@@ -25,7 +25,7 @@ def ver_perfil(usuario_id):
                            total_seguidos=usuario.seguidos.count())
 
 @api_bp.route('/usuarios/editar-perfil', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def editar_perfil():
     if request.method == 'GET':
         return render_template('perfil-page.html', usuario=current_user)
@@ -72,7 +72,7 @@ def editar_perfil():
         return redirect(url_for('api.ver_perfil', usuario_id=current_user.id))
 
 @api_bp.route('/usuarios/<int:usuario_id>/seguir', methods=['POST'])
-@login_required
+# @login_required
 def seguir_usuario(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     
@@ -89,7 +89,7 @@ def seguir_usuario(usuario_id):
     return redirect(url_for('api.ver_perfil', usuario_id=usuario_id))
 
 @api_bp.route('/usuarios/<int:usuario_id>/dejar-de-seguir', methods=['POST'])
-@login_required
+# @login_required
 def dejar_de_seguir(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     
