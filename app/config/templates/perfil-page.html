@@ -7,7 +7,116 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Onest:wght@100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <title>Profile</title>
+    <title>Perfil Usuario</title>
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .oculto {
+            display: none;
+        }
+        
+        .modalContenido {
+            padding: 3rem;
+            background-color: white;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 900px;
+            position: relative;
+        }
+        
+        .cerrarModal {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* Estilos para el modal de editar perfil */
+        .editarPerfilModal .modalContenido {
+            max-width: 600px;
+        }
+        
+        .fotoPerfil {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .fotoPerfil img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cambiarFoto {
+            text-align: center;
+            margin: 10px 0;
+            cursor: pointer;
+            color: #e74c3c;
+            font-size: 14px;
+        }
+        
+        .formPerfil {
+            margin-top: 20px;
+        }
+        
+        .formPerfil label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        .formPerfil input, .formPerfil textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .formPerfil textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .guardarBtn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+            cursor: pointer;
+            float: right;
+        }
+        
+        .formatosPermitidos {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .formatosPermitidos ul {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <header class="encabezado">
@@ -52,7 +161,7 @@
             </div>
             <div class="accionesUsuario">
                 <button class="botonAccion redondo" id="abrirModal">+</button>
-                <button class="botonAccion cuadrado">✏️</button>
+                <button class="botonAccion cuadrado" id="abrirModalEditar">✏️</button>
             </div>
         </section>
     
@@ -179,10 +288,53 @@
         <button class="agregarReceta">Agregar Receta</button>
         </div>
     </div>
+
+    <!-- MODAL EDITAR PERFIL -->
+    <div id="modalEditarPerfil" class="modal oculto editarPerfilModal">
+        <div class="modalContenido">
+            <button class="cerrarModal">&times;</button>
+            <h2>Editar Perfil</h2>
+            
+            <div class="formPerfil">
+                <div style="text-align: center;">
+                    <label for="fotoPerfil">
+                        <div class="fotoPerfil">
+                            <img id="previewFotoPerfil" src="https://highxtar.com/wp-content/uploads/2024/08/thumb-drake-leak-1440x1080.jpg" alt="Foto de perfil">
+                        </div>
+                        <p class="cambiarFoto">Cambiar foto de perfil</p>
+                        <input type="file" id="fotoPerfil" accept="image/png, image/jpeg" hidden>
+                    </label>
+                    <div class="formatosPermitidos">
+                        <p>Formatos permitidos:</p>
+                        <ul>
+                            <li>Archivo .PNG</li>
+                            <li>Archivo .JPG</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <label for="nombreUsuario">Nombre de usuario</label>
+                <input type="text" id="nombreUsuario" value="Camilo Ternera Duque">
+                
+                <label for="emailUsuario">Email</label>
+                <input type="email" id="emailUsuario" value="Camilo_TD@gmail.com">
+                
+                <label for="passwordUsuario">Contraseña</label>
+                <input type="password" id="passwordUsuario" value="••••••••••••••••">
+                
+                <label for="descripcionUsuario">Descripción</label>
+                <textarea id="descripcionUsuario">Amante de la cocina rápida y saludable. ¡Me encanta compartir recetas!</textarea>
+                
+                <button class="guardarBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Script para modal de Nueva Receta (existente)
         const abrirModalBtn = document.getElementById('abrirModal');
         const modal = document.getElementById('modalReceta');
-        const cerrarModalBtn = document.querySelector('.cerrarModal');
+        const cerrarModalBtn = document.querySelector('#modalReceta .cerrarModal');
       
         abrirModalBtn.addEventListener('click', () => {
           modal.classList.remove('oculto');
@@ -216,6 +368,64 @@
             previewImg.style.display = "none";
             }
         });
-      </script>
+        
+        // Script para modal de Editar Perfil (nuevo)
+        const abrirModalEditarBtn = document.getElementById('abrirModalEditar');
+        const modalEditarPerfil = document.getElementById('modalEditarPerfil');
+        const cerrarModalEditarBtn = document.querySelector('#modalEditarPerfil .cerrarModal');
+        
+        abrirModalEditarBtn.addEventListener('click', () => {
+            modalEditarPerfil.classList.remove('oculto');
+        });
+        
+        cerrarModalEditarBtn.addEventListener('click', () => {
+            modalEditarPerfil.classList.add('oculto');
+        });
+        
+        // Cerrar modal de editar perfil haciendo clic fuera del contenido
+        window.addEventListener('click', (e) => {
+            if (e.target === modalEditarPerfil) {
+                modalEditarPerfil.classList.add('oculto');
+            }
+        });
+        
+        // Vista previa de la foto del perfil
+        const fotoPerfilInput = document.getElementById("fotoPerfil");
+        const previewFotoPerfil = document.getElementById("previewFotoPerfil");
+        
+        fotoPerfilInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewFotoPerfil.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Funcionalidad para guardar el perfil
+        const guardarPerfilBtn = document.querySelector('.guardarBtn');
+        guardarPerfilBtn.addEventListener('click', () => {
+            // Obtener valores editados
+            const nombreUsuario = document.getElementById('nombreUsuario').value;
+            const descripcionUsuario = document.getElementById('descripcionUsuario').value;
+            
+            // Actualizar la página con los nuevos valores
+            document.querySelector('.nombreUsuario').textContent = nombreUsuario;
+            document.querySelector('.descripcionUsuario').textContent = descripcionUsuario;
+            
+            // También actualizar foto de perfil si se cambió
+            if (previewFotoPerfil.src) {
+                const avatares = document.querySelectorAll('.avatarUsuario, .avatarUsuarioSesion');
+                avatares.forEach(avatar => {
+                    avatar.src = previewFotoPerfil.src;
+                });
+            }
+            
+            // Cerrar el modal
+            modalEditarPerfil.classList.add('oculto');
+        });
+    </script>
 </body>
 </html>
