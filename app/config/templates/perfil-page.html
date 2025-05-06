@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Onest:wght@100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <title>Profile</title>
+</head>
+<body>
+    <header class="encabezado">
+        <div class="contenedor">
+          <h1 class="logo">Recetas Sencillas</h1>
+          <nav class="navegacion">
+            <ul>
+              <li><a href="#">Inicio</a></li>
+              <li><a href="#">Desayunos</a></li>
+              <li><a href="#">Almuerzos</a></li>
+              <li><a href="#">Postres</a></li>
+              <li><a href="#">Contacto</a></li>
+            </ul>
+          </nav>
+          <div class="botones-header">
+            <img src="https://highxtar.com/wp-content/uploads/2024/08/thumb-drake-leak-1440x1080.jpg" alt="Foto de perfil" class="avatarUsuarioSesion" />
+          </div>
+        </div>
+      </header>
+      <main class="contenedor principal">
+        <section class="perfilUsuario">
+            <div class="infoUsuario">
+            <img src="https://highxtar.com/wp-content/uploads/2024/08/thumb-drake-leak-1440x1080.jpg" alt="Foto de perfil" class="avatarUsuario" />
+            <div class="datosUsuario">
+                <h2 class="nombreUsuario">Camilo Ternera Duque</h2>
+                <p class="descripcionUsuario">Amante de la cocina rápida y saludable. ¡Me encanta compartir recetas!</p>
+                <div class="estadisticas">
+                <div>
+                    <p class="numero">150</p>
+                    <p class="etiqueta">Seguidos</p>
+                </div>
+                <div>
+                    <p class="numero">104</p>
+                    <p class="etiqueta">Me gusta</p>
+                </div>
+                <div>
+                    <p class="numero">15</p>
+                    <p class="etiqueta">Recetas</p>
+                </div>
+                </div>
+            </div>
+            </div>
+            <div class="accionesUsuario">
+                <button class="botonAccion redondo" id="abrirModal">+</button>
+                <button class="botonAccion cuadrado">✏️</button>
+            </div>
+        </section>
+    
+        <!-- Pestañas -->
+        <nav class="pestanas">
+            <button class="pestana activa">Mis recetas</button>
+            <button class="pestana">Mis favoritos</button>
+        </nav>
+        <section class="grid-recetas">
+            <article class="tarjeta-receta">
+              <div class="imagen" style="background-image: url(https://www.beloleum.com/wp-content/uploads/2023/11/hamburguesas-caseras-gourmet.png);"></div>
+              <div class="contenido">
+                <h3>Nombre de la receta</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                <div class="footer-tarjeta">
+                  <span>Hace 15 minutos</span>
+                  <span class="corazon">♡</span>
+                </div>
+              </div>
+            </article>
+            <article class="tarjeta-receta">
+              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
+              <div class="contenido">
+                <h3>Nombre de la receta</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                <div class="footer-tarjeta">
+                  <span>Hace 15 minutos</span>
+                  <span class="corazon">♡</span>
+                </div>
+              </div>
+            </article>
+            <article class="tarjeta-receta">
+              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
+              <div class="contenido">
+                <h3>Nombre de la receta</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                <div class="footer-tarjeta">
+                  <span>Hace 15 minutos</span>
+                  <span class="corazon">♡</span>
+                </div>
+              </div>
+            </article>
+            <article class="tarjeta-receta">
+              <div class="imagen" style="background-image: url(https://content.elmueble.com/medio/2023/05/23/tacos_fcb4f631_00541381_230523124558_1500x2032.jpg);"></div>
+              <div class="contenido">
+                <h3>Nombre de la receta</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                <div class="footer-tarjeta">
+                  <span>Hace 15 minutos</span>
+                  <span class="corazon">♡</span>
+                </div>
+              </div>
+            </article>
+            <article class="tarjeta-receta">
+              <div class="imagen" style="background-image: url(https://c.files.bbci.co.uk/DBBF/production/_105055265_bandejapaisa.jpg);"></div>
+              <div class="contenido">
+                <h3>Nombre de la receta</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                <div class="footer-tarjeta">
+                  <span>Hace 15 minutos</span>
+                  <span class="corazon">♡</span>
+                </div>
+              </div>
+            </article>
+            <article class="tarjeta-receta">
+              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
+              <div class="contenido" >
+                <h3>Nombre de la receta</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                <div class="footer-tarjeta">
+                  <span>Hace 15 minutos</span>
+                  <span class="corazon">♡</span>
+                </div>
+              </div>
+            </article>
+            <article class="tarjeta-receta">
+              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
+              <div class="contenido">
+                <h3>Nombre de la receta</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                <div class="footer-tarjeta">
+                  <span>Hace 15 minutos</span>
+                  <span class="corazon">♡</span>
+                </div>
+              </div>
+            </article>
+          </section>
+      
+    </main>
+    <!-- MODAL NUEVA RECETA -->
+    <div id="modalReceta" class="modal oculto">
+        <div class="modalContenido">
+        <button class="cerrarModal">&times;</button>
+        <h2>Nueva receta</h2>
+        <div class="formularioReceta">
+            <div class="columnaPortada">
+                <h3>Portada</h3>
+              
+                <label class="portadaImg" for="archivoPortada">
+                  <input type="file" id="archivoPortada" accept="image/png, image/jpeg" hidden />
+                  <img id="previewPortada" alt="Vista previa" />
+                </label>
+              
+                <label class="subirArchivo">Adjunte su archivo</label>
+                <small>Formatos permitidos:</small>
+                <ul>
+                  <li>Archivo .PNG</li>
+                  <li>Archivo .JPG</li>
+                </ul>
+              </div>
+            <div class="columnaCampos">
+            <label for="titulo"><strong>Titulo</strong></label>
+            <input type="text" id="titulo" placeholder="Título Ejemplo" />
+    
+            <label for="descripcion"><strong>Descripcion</strong></label>
+            <textarea id="descripcion" placeholder="Lorem ipsum..."></textarea>
+    
+            <label for="instruccion"><strong>Primera Instruccion</strong></label>
+            <input type="text" id="instruccion" placeholder="..." />
+    
+            <button class="agregarInstruccion">Agregar Instruccion</button>
+            </div>
+        </div>
+        <button class="agregarReceta">Agregar Receta</button>
+        </div>
+    </div>
+    <script>
+        const abrirModalBtn = document.getElementById('abrirModal');
+        const modal = document.getElementById('modalReceta');
+        const cerrarModalBtn = document.querySelector('.cerrarModal');
+      
+        abrirModalBtn.addEventListener('click', () => {
+          modal.classList.remove('oculto');
+        });
+      
+        cerrarModalBtn.addEventListener('click', () => {
+          modal.classList.add('oculto');
+        });
+      
+        // Opcional: cerrar modal haciendo clic fuera del contenido
+        window.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.add('oculto');
+          }
+        });
+
+        const archivoInput = document.getElementById("archivoPortada");
+        const previewImg = document.getElementById("previewPortada");
+
+        archivoInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewImg.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+            } else {
+            previewImg.src = "";
+            previewImg.style.display = "none";
+            }
+        });
+      </script>
+</body>
+</html>
