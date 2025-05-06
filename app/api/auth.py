@@ -16,7 +16,7 @@ from app.utils.validaciones import allowed_file
 @api_bp.route('/auth/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return render_template('register-page.html')  # Cambiar aquí
+        return render_template('register-page.html')  
     
     if request.method == 'POST':
         nombre = request.form.get('nombre')
@@ -73,7 +73,7 @@ def register():
 @api_bp.route('/auth/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template('iniciar-sesion-page.html')  # Cambiar aquí
+        return render_template('iniciar-sesion-page.html')  
     
     if request.method == 'POST':
         email = request.form.get('email')
@@ -105,7 +105,7 @@ def logout():
 @api_bp.route('/auth/recuperar-password', methods=['GET', 'POST'])
 def recuperar_password():
     if request.method == 'GET':
-        return render_template('register-page.html')  # Cambiar aquí
+        return render_template('olvidar-contraseña-page.html')  
     
     if request.method == 'POST':
         email = request.form.get('email')
@@ -150,7 +150,7 @@ def reset_password(token):
         return redirect(url_for('api.recuperar_password'))
     
     if request.method == 'GET':
-        return render_template('olvidar-contraseña-page.html')  # Cambiar aquí
+        return render_template('olvidar-contraseña-page.html')  
     
     if request.method == 'POST':
         password = request.form.get('password')
@@ -158,11 +158,11 @@ def reset_password(token):
         
         if not password or not confirm_password:
             flash('Por favor, completa todos los campos', 'error')
-            return render_template('olvidar-contraseña-page.html')  # Cambiar aquí
+            return render_template('olvidar-contraseña-page.html')  
         
         if password != confirm_password:
             flash('Las contraseñas no coinciden', 'error')
-            return render_template('olvidar-contraseña-page.html')  # Cambiar aquí
+            return render_template('olvidar-contraseña-page.html')  
         
         # Actualizar contraseña
         usuario.set_password(password)
