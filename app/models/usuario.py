@@ -9,7 +9,7 @@ class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     nombre = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    contraseña = db.Column(db.String(255), nullable=False)
+    contrasena = db.Column(db.String(255), nullable=False)
     foto_perfil = db.Column(db.String(255), default='default.jpg')
     descripcion = db.Column(db.Text)
     
@@ -32,18 +32,18 @@ class Usuario(db.Model, UserMixin):
         lazy='dynamic'
     )
     
-    def __init__(self, nombre, email, contraseña, foto_perfil='default.jpg', descripcion=None):
+    def __init__(self, nombre, email, contrasena, foto_perfil='default.jpg', descripcion=None):
         self.nombre = nombre
         self.email = email
-        self.set_password(contraseña)
+        self.set_password(contrasena)
         self.foto_perfil = foto_perfil
         self.descripcion = descripcion
+
+    def set_password(self, contrasena):
+        self.contrasena = generate_password_hash(contrasena)
     
-    def set_password(self, contraseña):
-        self.contraseña = generate_password_hash(contraseña)
-    
-    def check_password(self, contraseña):
-        return check_password_hash(self.contraseña, contraseña)
+    def check_password(self, contrasena):
+        return check_password_hash(self.contrasena, contrasena)
     
     def seguir(self, usuario):
         if not self.is_following(usuario):

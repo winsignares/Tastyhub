@@ -12,6 +12,7 @@ def validate_email(email):
     """
     Valida el formato de un correo electrónico
     """
+    import re
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
@@ -23,6 +24,7 @@ def validate_password(password):
     - Al menos una letra minúscula
     - Al menos un número
     """
+    import re
     if len(password) < 8:
         return False
     

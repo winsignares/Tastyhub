@@ -11,8 +11,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Configuración de seguridad
-    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT', 'sal_desarrollo_cambiar_en_produccion')
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt_desarrollo_cambiar_en_produccion')
+    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT', 'SalSecurityPasswordKeyTastyHub')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'MySecretTokenKeyTastyHub')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
     
     # Configuración de uploads
@@ -20,10 +20,11 @@ class Config:
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
     
-    # Configuración de correo electrónico
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    # Configuración de correo electrónico (Aún no implementada)
+    # Configuración de Flask-Mail
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'tatyhub.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@recetas-app.com')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@tastyhub-app.com')

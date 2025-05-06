@@ -2,7 +2,7 @@ CREATE TABLE `Usuarios` (
   `id` INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   `nombre` VARCHAR(255),
   `email` VARCHAR(255),
-  `contraseña` VARCHAR(255),
+  `contrasena` VARCHAR(255),
   `foto_perfil` VARCHAR(255),
   `descripcion` TEXT(65535),
   PRIMARY KEY(`id`)
