@@ -83,7 +83,7 @@ def listar_recetas():
     #                        categoria_actual=categoria_id,
     #                        busqueda=busqueda)
 
-# Endpoint para ver una receta específica ⌛
+# Endpoint para ver una receta específica ✅
 @api_bp.route('/recetas/<int:receta_id>')
 def ver_receta(receta_id):
     try:
