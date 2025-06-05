@@ -568,6 +568,67 @@ def eliminar_receta(receta_id):
 @api_bp.route('/recetas/<int:receta_id>/me-gusta', methods=['POST'])
 # @login_required
 def dar_me_gusta(receta_id):
+    # Verificar autenticación
+    if not current_user.is_authenticated:
+        if request.headers.get('Content-Type') == 'application/json' or request.headers.get('Accept') == 'application/json':
+            return jsonify({
+                'status': 'error',
+                'message': 'Debes iniciar sesión para dar me gusta',
+                'code': 401
+            }), 401
+        else:
+            flash('Debes iniciar sesión para dar me gusta', 'error')
+            return redirect(url_for('api.login'))
+    
+    receta = Receta.query.get_or_404(receta_id)
+    
+    # Verificar si el usuario ya dio me gusta
+    me_gusta = MeGusta.query.filter_by(receta_id=receta_id, ususario_id=current_user.id).first()
+    
+    try:
+        if me_gusta:
+            # Si ya dio me gusta, eliminarlo (toggle)
+            db.session.delete(me_gusta)
+            db.session.commit()
+            mensaje = 'Se ha quitado tu me gusta'
+            dio_like = False
+        else:
+            # Si no ha dado me gusta, agregarlo
+            nuevo_me_gusta = MeGusta(ususario_id=current_user.id, receta_id=receta_id)
+            db.session.add(nuevo_me_gusta)
+            db.session.commit()
+            mensaje = '¡Gracias por tu me gusta!'
+            dio_like = True
+        
+        # Contar total de me gustas actualizado
+        total_likes = receta.contar_me_gustas()
+        
+        # Responder según el tipo de petición
+        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded' or 'XMLHttpRequest' in str(request.headers.get('X-Requested-With', '')):
+            return jsonify({
+                'status': 'success',
+                'message': mensaje,
+                'dio_like': dio_like,
+                'total_likes': total_likes,
+                'receta_id': receta_id
+            }), 200
+        else:
+            flash(mensaje, 'success' if dio_like else 'info')
+            return redirect(url_for('api.ver_receta', receta_id=receta_id))
+            
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error al procesar me gusta: {str(e)}")
+        
+        if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+            return jsonify({
+                'status': 'error',
+                'message': 'Error al procesar la solicitud',
+                'details': str(e) if current_app.debug else 'Error interno'
+            }), 500
+        else:
+            flash('Error al procesar tu me gusta', 'error')
+            return redirect(url_for('api.ver_receta', receta_id=receta_id))
     receta = Receta.query.get_or_404(receta_id)
     
     # Verificar si el usuario ya dio me gusta
