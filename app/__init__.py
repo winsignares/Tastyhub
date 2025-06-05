@@ -61,7 +61,7 @@ def create_app(config_class=None):
         from app.models.categoria import Categoria
         
         # Obtener recetas recientes
-        recetas_recientes = Receta.query.order_by(Receta.fecha_creacion.desc()).limit(6).all()
+        recetas_recientes = Receta.query.order_by(Receta.fecha_creacion.desc()).all()
         
         # Obtener categorías
         categorias = Categoria.query.all()

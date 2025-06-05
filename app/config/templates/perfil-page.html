@@ -317,7 +317,6 @@
                                     <span class="me-gustas">❤️ {{ receta.contar_me_gustas() if receta.contar_me_gustas else 0 }}</span>
                                     {% if current_user.is_authenticated and current_user.id == usuario.id %}
                                         <div class="acciones-autor">
-                                            <a href="{{ url_for('api.editar_receta', receta_id=receta.id) }}" title="Editar receta">✏️</a>
                                             <form method="POST" action="{{ url_for('api.eliminar_receta', receta_id=receta.id) }}" 
                                                   style="display: inline;" 
                                                   onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta receta?')">
