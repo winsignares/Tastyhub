@@ -3,27 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="../../static/css/Iniciar_sesion.css">
+    <title>Iniciar Sesión - Recetas Sencillas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/Iniciar_sesion.css') }}">
+    <style>
+        /* Estilos para las alertas */
+        .alert {
+            padding: 12px 16px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group.error input {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .field-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .remember-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .remember-group input[type="checkbox"] {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.2s;
+            margin: 20px 0;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        /* Mejoras de accesibilidad */
+        .links a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .forgot-link {
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .register-link, .home-link {
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
         <h1>Iniciar Sesión</h1>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="Jhon_Doe@gmail.com">
-        </div>
-        <div class="form-group">
-            <label for="password">Contraseña</label>
-            <input type="password" id="password" placeholder="****************">
-        </div>
-        <a href="/">
-        <button type="button">Ingresar</button>
-        </a>
+        
+        <!-- Mostrar mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alerts-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('api.login') }}" id="loginForm" novalidate>
+            <!-- Token CSRF si está habilitado -->
+            {% if csrf_token %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" 
+                       id="email" 
+                       name="email" 
+                       placeholder="tu@email.com"
+                       value="{{ email if email else '' }}"
+                       required
+                       autocomplete="email">
+                <span class="field-error" id="email-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña *</label>
+                <input type="password" 
+                       id="password" 
+                       name="password" 
+                       placeholder="Tu contraseña"
+                       required
+                       autocomplete="current-password">
+                <span class="field-error" id="password-error"></span>
+            </div>
+            
+            <div class="remember-group">
+                <input type="checkbox" id="remember" name="remember" value="1">
+                <label for="remember">Recordarme en este dispositivo</label>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="submitBtn">
+                <span id="submitText">Ingresar</span>
+                <span id="loadingText" style="display: none;">Iniciando sesión...</span>
+            </button>
+        </form>
+        
         <div class="links">
-            <div class="register-link">¿No tienes cuenta? <a href="./register">Regístrate</a></div>
-            <div class="forgot-link"><a href="./recuperar-password">¿Olvidaste tu contraseña?</a></div>
-            <div class="home-link"><a href="/">Volver a la página principal</a></div>
+            <div class="register-link">
+                ¿No tienes cuenta? 
+                <a href="{{ url_for('api.register') }}">Regístrate</a>
+            </div>
+            
+            <div class="forgot-link">
+                <a href="#" onclick="mostrarRecuperarPassword()">¿Olvidaste tu contraseña?</a>
+            </div>
+            
+            <div class="home-link">
+                <a href="{{ url_for('main.index') }}">Volver a la página principal</a>
+            </div>
         </div>
     </div>
 
@@ -31,5 +189,132 @@
         <p>© 2025 Recetas Sencillas - Todos los derechos reservados</p>
         <p>Contacto: contacto@recetas-sencillas.com</p>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingText = document.getElementById('loadingText');
+            
+            // Elementos del formulario
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            // Elementos de error
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            
+            // Validación en tiempo real del email
+            emailInput.addEventListener('input', function() {
+                const email = this.value.trim();
+                if (email.length === 0) {
+                    showFieldError(emailError, 'El email es obligatorio');
+                } else if (!isValidEmail(email)) {
+                    showFieldError(emailError, 'Formato de email inválido');
+                } else {
+                    clearFieldError(emailError);
+                }
+            });
+            
+            // Validación en tiempo real de la contraseña
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                if (password.length === 0) {
+                    showFieldError(passwordError, 'La contraseña es obligatoria');
+                } else {
+                    clearFieldError(passwordError);
+                }
+            });
+            
+            // Envío del formulario
+            form.addEventListener('submit', function(e) {
+                let hasErrors = false;
+                
+                // Validar email
+                const email = emailInput.value.trim();
+                if (!email) {
+                    showFieldError(emailError, 'El email es obligatorio');
+                    hasErrors = true;
+                } else if (!isValidEmail(email)) {
+                    showFieldError(emailError, 'Formato de email inválido');
+                    hasErrors = true;
+                } else {
+                    clearFieldError(emailError);
+                }
+                
+                // Validar contraseña
+                const password = passwordInput.value;
+                if (!password) {
+                    showFieldError(passwordError, 'La contraseña es obligatoria');
+                    hasErrors = true;
+                } else {
+                    clearFieldError(passwordError);
+                }
+                
+                // Si hay errores, prevenir envío
+                if (hasErrors) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Mostrar estado de carga
+                submitBtn.disabled = true;
+                submitText.style.display = 'none';
+                loadingText.style.display = 'inline';
+                form.classList.add('loading');
+            });
+            
+            // Funciones auxiliares
+            function showFieldError(errorElement, message) {
+                errorElement.textContent = message;
+                errorElement.parentElement.classList.add('error');
+            }
+            
+            function clearFieldError(errorElement) {
+                errorElement.textContent = '';
+                errorElement.parentElement.classList.remove('error');
+            }
+            
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+            
+            // Auto-focus en el primer campo vacío
+            if (!emailInput.value) {
+                emailInput.focus();
+            } else if (!passwordInput.value) {
+                passwordInput.focus();
+            }
+        });
+        
+        // Función para mostrar modal de recuperar contraseña (placeholder)
+        function mostrarRecuperarPassword() {
+            alert('Funcionalidad de recuperar contraseña próximamente.\n\nPor ahora, contacta al administrador en:\ncontacto@recetas-sencillas.com');
+        }
+        
+        // Ocultar alertas automáticamente después de 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s ease';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
+        });
+        
+        // Manejar errores de red
+        window.addEventListener('beforeunload', function() {
+            const form = document.getElementById('loginForm');
+            if (form.classList.contains('loading')) {
+                return 'Tu sesión se está iniciando. ¿Estás seguro de que quieres salir?';
+            }
+        });
+    </script>
 </body>
 </html>

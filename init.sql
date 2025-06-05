@@ -84,7 +84,7 @@ ALTER TABLE `seguidores` ADD FOREIGN KEY(`seguidor_id`) REFERENCES `Usuarios`(`i
 -- Insertar algunas categorías de ejemplo
 INSERT INTO `categorias` (`nombre`, `descripcion`) VALUES 
 ('Desayuno', 'Recetas para comenzar el día con energía'),
-('Almuerzo', 'Deliciosas comidas para el medio día'),
+('Almuerzo', 'Deliciosas comidas para el medio día')
 ('Cena', 'Platos ligeros para la noche'),
 ('Postres', 'Dulces para complementar cualquier comida'),
 ('Vegano', 'Recetas sin productos de origen animal'),

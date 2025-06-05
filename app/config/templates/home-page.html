@@ -4,11 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Recetas Sencillas</title>
-  <link rel="stylesheet" href="../../static/css/styles.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Onest:wght@100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-  
 </head>
 <body>
   <header class="encabezado">
@@ -16,20 +15,27 @@
       <h1 class="logo">Recetas Sencillas</h1>
       <nav class="navegacion">
         <ul>
-          <li><a href="#">Inicio</a></li>
-          <li><a href="#">Desayunos</a></li>
-          <li><a href="#">Almuerzos</a></li>
-          <li><a href="#">Postres</a></li>
-          <li><a href="api/usuarios/editar-perfil">Contacto</a></li>
         </ul>
       </nav>
       <div class="botones-header">
-        <a href="api/auth/login">
-        <button class="btn-transparente" >Iniciar Sesión</button>
-        </a>
-        <a href="api/auth/register">
-        <button class="btn-blanco" >Registrarse</button>
-        </a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('api.ver_perfil', usuario_id=current_user.id) }}" style="text-decoration: none; color: inherit;">
+              <img src="{{ url_for('static', filename=current_user.foto_perfil) if current_user.foto_perfil != 'default.jpg' else 'https://via.placeholder.com/32x32?text=' + current_user.nombre[0] }}" 
+                   alt="Foto de perfil" 
+                   style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+              <span>{{ current_user.nombre }}</span>
+            </a>
+          <a href="{{ url_for('api.logout') }}">
+            <button class="btn-transparente">Cerrar Sesión</button>
+          </a>
+        {% else %}
+          <a href="{{ url_for('api.login') }}">
+            <button class="btn-transparente">Iniciar Sesión</button>
+          </a>
+          <a href="{{ url_for('api.register') }}">
+            <button class="btn-blanco">Registrarse</button>
+          </a>
+        {% endif %}
       </div>
     </div>
   </header>
@@ -37,93 +43,121 @@
   <main class="contenedor principal">
     <h2 class="titulo-seccion">Descubre nuestras recetas</h2>
     
+    <!-- Formulario de búsqueda -->
+    <div class="busqueda-container" style="margin-bottom: 20px;">
+      <form method="GET" action="{{ url_for('api.listar_recetas') }}" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input type="text" name="q" placeholder="Buscar recetas..." value="{{ request.args.get('q', '') }}" 
+               style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex-grow: 1;">
+        <button type="submit" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          Buscar
+        </button>
+      </form>
+    </div>
+    
+    <!-- Filtros por categoría -->
     <div class="filtros">
-      <button class="activo">Todas</button>
-      <button>Más recientes</button>
-      <button>Más gustadas</button>
-      <button>Más rápidas</button>
-      <button>Sin gluten</button>
+      <a href="{{ url_for('main.index') }}" class="filtro-btn {{ 'activo' if not request.args.get('categoria') else '' }}">
+        Todas
+      </a>
+      {% if categorias %}
+        {% for categoria in categorias %}
+          <a href="{{ url_for('api.listar_recetas', categoria=categoria.id) }}" 
+             class="filtro-btn {{ 'activo' if request.args.get('categoria')|int == categoria.id else '' }}">
+            {{ categoria.nombre }}
+          </a>
+        {% endfor %}
+      {% endif %}
     </div>
 
+    <!-- Grid de recetas -->
     <section class="grid-recetas">
-      <article class="tarjeta-receta">
-        <div class="imagen" style="background-image: url(https://www.beloleum.com/wp-content/uploads/2023/11/hamburguesas-caseras-gourmet.png);"></div>
-        <div class="contenido">
-          <h3>Nombre de la receta</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-          <div class="footer-tarjeta">
-            <span>Hace 15 minutos</span>
-            <span class="corazon">♡</span>
-          </div>
+      {% if recetas_recientes %}
+        {% for receta in recetas_recientes %}
+          <article class="tarjeta-receta">
+            <div class="imagen" 
+                 style="background-image: url('{{ receta.imagen_portada if receta.imagen_portada else 'https://via.placeholder.com/300x200?text=Sin+Imagen' }}');"></div>
+            </div>
+            <div class="contenido">
+              <h3>
+                <a href="{{ url_for('api.ver_receta', receta_id=receta.id) }}" style="text-decoration: none; color: inherit;">
+                  {{ receta.titulo }}
+                </a>
+              </h3>
+              <p>{{ receta.descripcion[:100] }}{% if receta.descripcion|length > 100 %}...{% endif %}</p>
+              
+              <!-- Información adicional -->
+              <div class="info-receta" style="margin: 10px 0; font-size: 14px; color: #666;">
+                {% if receta.tiempor_pre %}
+                  <span>⏱️ {{ receta.tiempor_pre }}</span>
+                {% endif %}
+                
+                {% if receta.autor %}
+                  <span style="margin-left: 10px;">👨‍🍳 {{ receta.autor.nombre }}</span>
+                {% endif %}
+              </div>
+              
+              <!-- Categorías -->
+              {% if receta.categorias %}
+                <div class="categorias-receta" style="margin: 10px 0;">
+                  {% for categoria in receta.categorias[:2] %}
+                    <span class="categoria-tag" style="background: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 5px;">
+                      {{ categoria.nombre }}
+                    </span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              
+              <div class="footer-tarjeta">
+                <span>{{ moment(receta.fecha_creacion).fromNow() if moment else receta.fecha_creacion.strftime('%d/%m/%Y') }}</span>
+                <div class="acciones-receta">
+                  <span class="me-gustas">❤️ {{ receta.contar_me_gustas() }}</span>
+                  {% if current_user.is_authenticated %}
+                    <form method="POST" action="{{ url_for('api.dar_me_gusta', receta_id=receta.id) }}" style="display: inline;">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                      <button type="submit" class="btn-me-gusta" style="background: none; border: none; cursor: pointer; font-size: 16px;">
+                        {% if receta.usuario_dio_like %}♥{% else %}♡{% endif %}
+                      </button>
+                    </form>
+                  {% else %}
+                    <span class="corazon">♡</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      {% else %}
+        <!-- Mensaje cuando no hay recetas -->
+        <div class="no-recetas" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+          <h3>No hay recetas disponibles</h3>
+          <p>¡Sé el primero en compartir una deliciosa receta!</p>
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('api.nueva_receta') }}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+              Crear Primera Receta
+            </a>
+          {% else %}
+            <p style="margin-top: 20px;">
+              <a href="{{ url_for('api.register') }}" style="color: #007bff;">Regístrate</a> para crear tu primera receta
+            </p>
+          {% endif %}
         </div>
-      </article>
-      <article class="tarjeta-receta">
-        <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-        <div class="contenido">
-          <h3>Nombre de la receta</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-          <div class="footer-tarjeta">
-            <span>Hace 15 minutos</span>
-            <span class="corazon">♡</span>
-          </div>
-        </div>
-      </article>
-      <article class="tarjeta-receta">
-        <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-        <div class="contenido">
-          <h3>Nombre de la receta</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-          <div class="footer-tarjeta">
-            <span>Hace 15 minutos</span>
-            <span class="corazon">♡</span>
-          </div>
-        </div>
-      </article>
-      <article class="tarjeta-receta">
-        <div class="imagen" style="background-image: url(https://content.elmueble.com/medio/2023/05/23/tacos_fcb4f631_00541381_230523124558_1500x2032.jpg);"></div>
-        <div class="contenido">
-          <h3>Nombre de la receta</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-          <div class="footer-tarjeta">
-            <span>Hace 15 minutos</span>
-            <span class="corazon">♡</span>
-          </div>
-        </div>
-      </article>
-      <article class="tarjeta-receta">
-        <div class="imagen" style="background-image: url(https://c.files.bbci.co.uk/DBBF/production/_105055265_bandejapaisa.jpg);"></div>
-        <div class="contenido">
-          <h3>Nombre de la receta</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-          <div class="footer-tarjeta">
-            <span>Hace 15 minutos</span>
-            <span class="corazon">♡</span>
-          </div>
-        </div>
-      </article>
-      <article class="tarjeta-receta">
-        <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-        <div class="contenido" >
-          <h3>Nombre de la receta</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-          <div class="footer-tarjeta">
-            <span>Hace 15 minutos</span>
-            <span class="corazon">♡</span>
-          </div>
-        </div>
-      </article>
-      <article class="tarjeta-receta">
-        <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-        <div class="contenido">
-          <h3>Nombre de la receta</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-          <div class="footer-tarjeta">
-            <span>Hace 15 minutos</span>
-            <span class="corazon">♡</span>
-          </div>
-        </div>
-      </article>
+      {% endif %}
     </section>
+    
+    <!-- Paginación (si decides implementarla después) -->
+    {% if pagination %}
+      <div class="paginacion" style="margin-top: 40px; text-align: center;">
+        {% if pagination.has_prev %}
+          <a href="{{ url_for('api.listar_recetas', pagina=pagination.prev_num) }}" class="btn-paginacion">← Anterior</a>
+        {% endif %}
+        
+        <span class="pagina-actual">Página {{ pagination.page }} de {{ pagination.pages }}</span>
+        
+        {% if pagination.has_next %}
+          <a href="{{ url_for('api.listar_recetas', pagina=pagination.next_num) }}" class="btn-paginacion">Siguiente →</a>
+        {% endif %}
+      </div>
+    {% endif %}
   </main>
 
   <footer class="pie">
@@ -131,5 +165,114 @@
     <p>Contacto: contacto@recetas-sencillas.com</p>
   </footer>
 
+  <!-- JavaScript para funcionalidades dinámicas -->
+  <script>
+    // Función para manejar el me gusta con AJAX (opcional)
+    function toggleMeGusta(recetaId) {
+      fetch(`/api/recetas/${recetaId}/me-gusta`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token() }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Actualizar la interfaz
+          location.reload(); // Por simplicidad, recarga la página
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+    
+    // Función para búsqueda dinámica (opcional)
+    function buscarRecetas() {
+      const searchInput = document.querySelector('input[name="q"]');
+      const searchTerm = searchInput.value.trim();
+      
+      if (searchTerm.length > 2) {
+        // Implementar búsqueda en tiempo real si lo deseas
+        window.location.href = `/api/recetas?q=${encodeURIComponent(searchTerm)}`;
+      }
+    }
+  </script>
+
+  <!-- Estilos adicionales para la integración -->
+  <style>
+    .filtro-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      margin: 5px;
+      text-decoration: none;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .filtro-btn:hover,
+    .filtro-btn.activo {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    
+    .usuario-logueado {
+      margin-right: 15px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .info-receta {
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    
+    .acciones-receta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .btn-me-gusta:hover {
+      transform: scale(1.2);
+      transition: transform 0.2s ease;
+    }
+    
+    .categoria-tag {
+      display: inline-block;
+      white-space: nowrap;
+    }
+    
+    .no-recetas {
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    
+    .btn-paginacion {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 0 5px;
+      text-decoration: none;
+      color: #007bff;
+      border: 1px solid #007bff;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-paginacion:hover {
+      background-color: #007bff;
+      color: white;
+    }
+    
+    .pagina-actual {
+      margin: 0 15px;
+      font-weight: 500;
+    }
+  </style>
 </body>
 </html>

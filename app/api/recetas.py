@@ -8,6 +8,8 @@ from app.models import Receta, Instruccion, Categoria, RecetaCategoria, Ingredie
 from app.config.db import db
 from . import api_bp
 from app.utils.validaciones import allowed_file
+import sqlalchemy.exc
+from app.models.usuario import Usuario
 
 # Endpoint para listar recetas y aplicar filtros ✅
 @api_bp.route('/recetas') 
@@ -40,48 +42,52 @@ def listar_recetas():
     # Obtener categorías
     categorias = Categoria.query.all()
     
-    # Crear respuesta JSON
-    respuesta = {
-        'status': 'success',
-        'total_recetas': recetas_paginadas.total,
-        'pagina_actual': recetas_paginadas.page,
-        'total_paginas': recetas_paginadas.pages,
-        'recetas_por_pagina': por_pagina,
-        'recetas': [
-            {
-                'id': receta.id,
-                'titulo': receta.titulo,
-                'descripcion': receta.descripcion,
-                'imagen_portada': receta.imagen_portada,
-                'tiempo_preparacion': receta.tiempor_pre,
-                'fecha_creacion': receta.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S'),
-                'autor_id': receta.id_usuario,
-                'autor_nombre': receta.autor.nombre if hasattr(receta, 'autor') else None,
-                'total_me_gustas': receta.contar_me_gustas(),
-                'categorias': [{'id': cat.id, 'nombre': cat.nombre} for cat in receta.categorias]
+    # Decidir si devolver JSON o HTML basado en el header Accept
+    if request.headers.get('Accept') == 'application/json' or request.args.get('format') == 'json':
+        # Crear respuesta JSON
+        respuesta = {
+            'status': 'success',
+            'total_recetas': recetas_paginadas.total,
+            'pagina_actual': recetas_paginadas.page,
+            'total_paginas': recetas_paginadas.pages,
+            'recetas_por_pagina': por_pagina,
+            'recetas': [
+                {
+                    'id': receta.id,
+                    'titulo': receta.titulo,
+                    'descripcion': receta.descripcion,
+                    'imagen_portada': receta.imagen_portada,
+                    'tiempo_preparacion': receta.tiempor_pre,
+                    'fecha_creacion': receta.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S'),
+                    'autor_id': receta.id_usuario,
+                    'autor_nombre': receta.autor.nombre if hasattr(receta, 'autor') else None,
+                    'total_me_gustas': receta.contar_me_gustas(),
+                    'categorias': [{'id': cat.id, 'nombre': cat.nombre} for cat in receta.categorias]
+                }
+                for receta in recetas_paginadas.items
+            ],
+            'categorias': [
+                {
+                    'id': categoria.id,
+                    'nombre': categoria.nombre,
+                    'descripcion': categoria.descripcion
+                }
+                for categoria in categorias
+            ],
+            'filtros': {
+                'busqueda': busqueda,
+                'categoria_id': categoria_id
             }
-            for receta in recetas_paginadas.items
-        ],
-        'categorias': [
-            {
-                'id': categoria.id,
-                'nombre': categoria.nombre,
-                'descripcion': categoria.descripcion
-            }
-            for categoria in categorias
-        ],
-        'filtros': {
-            'busqueda': busqueda,
-            'categoria_id': categoria_id
         }
-    }
-    
-    return jsonify(respuesta), 200
-    # return render_template('home-page.html', 
-    #                        recetas=recetas, 
-    #                        categorias=categorias,
-    #                        categoria_actual=categoria_id,
-    #                        busqueda=busqueda)
+        return jsonify(respuesta), 200
+    else:
+        # Devolver template HTML
+        return render_template('home-page.html', 
+                               recetas_recientes=recetas_paginadas.items,
+                               categorias=categorias,
+                               categoria_actual=categoria_id,
+                               busqueda=busqueda,
+                               pagination=recetas_paginadas)
 
 # Endpoint para ver una receta específica ✅
 @api_bp.route('/recetas/<int:receta_id>')

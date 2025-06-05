@@ -17,12 +17,18 @@ def ver_perfil(usuario_id):
     if current_user.is_authenticated:
         es_seguidor = current_user.is_following(usuario)
     
+    # Calcular total de me gustas en todas las recetas del usuario
+    total_me_gustas = 0
+    for receta in recetas:
+        total_me_gustas += receta.contar_me_gustas() if hasattr(receta, 'contar_me_gustas') else 0
+    
     return render_template('perfil-page.html', 
                            usuario=usuario, 
                            recetas=recetas, 
                            es_seguidor=es_seguidor,
-                           total_seguidores=usuario.seguidores.count(),
-                           total_seguidos=usuario.seguidos.count())
+                           total_seguidores=usuario.contar_seguidores(),
+                           total_seguidos=usuario.contar_seguidos(),
+                           total_me_gustas=total_me_gustas)
 
 @api_bp.route('/usuarios/editar-perfil', methods=['GET', 'POST'])
 # @login_required

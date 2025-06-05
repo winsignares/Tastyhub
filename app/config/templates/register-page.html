@@ -3,41 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Nueva Cuenta</title>
-    <link rel="stylesheet" href="../../static/css/register.css">
+    <title>Crear Nueva Cuenta - Recetas Sencillas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    <style>
+        /* Estilos para las alertas */
+        .alert {
+            padding: 12px 16px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.error input {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .field-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+    </style>
 </head>
 <body>
     <div class="page-container">
         <div class="register-container">
             <h1>Crear Nueva Cuenta</h1>
-            <form>
+            
+            <!-- Mostrar mensajes flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alerts-container">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('api.register') }}" id="registerForm" novalidate>
+                <!-- Token CSRF si está habilitado -->
+                {% if csrf_token %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% endif %}
+                
                 <div class="form-group">
-                    <label for="username">Nombre de usuario</label>
-                    <input type="text" id="username" placeholder="Jhon Doe">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="Jhon_Doe@gmail.com">
-                </div>
-                <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" placeholder="****************">
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">Confirmar Contraseña</label>
-                    <input type="password" id="confirm-password" placeholder="****************">
-                </div> 
-
-                <a href="./login">
-                <button type="button">Crear Cuenta</button>
-                </a>
-
-                <div class="terms-text">
-                    Al registrarte, aceptas nuestros <a href="#">Términos y Condiciones</a> y nuestra <a href="#">Política de Privacidad</a>.
+                    <label for="nombre">Nombre completo *</label>
+                    <input type="text" 
+                           id="nombre" 
+                           name="nombre" 
+                           placeholder="Juan Pérez"
+                           value="{{ nombre if nombre else '' }}"
+                           required
+                           minlength="2"
+                           maxlength="100">
+                    <span class="field-error" id="nombre-error"></span>
                 </div>
                 
-                <div class="login-link">¿Ya tienes cuenta? <a href="./login">Inicia sesión</a></div>
-                <div class="home-link"><a href="/">Volver a la página principal</a></div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           placeholder="juan.perez@gmail.com"
+                           value="{{ email if email else '' }}"
+                           required>
+                    <span class="field-error" id="email-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña *</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Mínimo 6 caracteres"
+                           required
+                           minlength="6"
+                           maxlength="128">
+                    <div class="password-strength" id="password-strength"></div>
+                    <span class="field-error" id="password-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">Confirmar Contraseña *</label>
+                    <input type="password" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           placeholder="Repite tu contraseña"
+                           required>
+                    <span class="field-error" id="confirm-password-error"></span>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    <span id="submitText">Crear Cuenta</span>
+                    <span id="loadingText" style="display: none;">Creando cuenta...</span>
+                </button>
+
+                <div class="terms-text">
+                    Al registrarte, aceptas nuestros <a href="#" target="_blank">Términos y Condiciones</a> 
+                    y nuestra <a href="#" target="_blank">Política de Privacidad</a>.
+                </div>
+                
+                <div class="login-link">
+                    ¿Ya tienes cuenta? 
+                    <a href="{{ url_for('api.login') }}">Inicia sesión</a>
+                </div>
+                
+                <div class="home-link">
+                    <a href="{{ url_for('main.index') }}">Volver a la página principal</a>
+                </div>
             </form>
         </div>
     </div>
@@ -46,5 +183,166 @@
         <p>© 2025 Recetas Sencillas - Todos los derechos reservados</p>
         <p>Contacto: contacto@recetas-sencillas.com</p>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registerForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingText = document.getElementById('loadingText');
+            
+            // Elementos del formulario
+            const nombreInput = document.getElementById('nombre');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            
+            // Elementos de error
+            const nombreError = document.getElementById('nombre-error');
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            const confirmPasswordError = document.getElementById('confirm-password-error');
+            const passwordStrength = document.getElementById('password-strength');
+            
+            // Validación en tiempo real del nombre
+            nombreInput.addEventListener('input', function() {
+                const valor = this.value.trim();
+                if (valor.length === 0) {
+                    showFieldError(nombreError, 'El nombre es obligatorio');
+                } else if (valor.length < 2) {
+                    showFieldError(nombreError, 'El nombre debe tener al menos 2 caracteres');
+                } else if (valor.length > 100) {
+                    showFieldError(nombreError, 'El nombre no puede tener más de 100 caracteres');
+                } else {
+                    clearFieldError(nombreError);
+                }
+            });
+            
+            // Validación en tiempo real del email
+            emailInput.addEventListener('blur', function() {
+                const email = this.value.trim();
+                if (email && isValidEmail(email)) {
+                    // Verificar disponibilidad del email
+                    checkEmailAvailability(email);
+                }
+            });
+            
+            emailInput.addEventListener('input', function() {
+                const email = this.value.trim();
+                if (email.length === 0) {
+                    showFieldError(emailError, 'El email es obligatorio');
+                } else if (!isValidEmail(email)) {
+                    showFieldError(emailError, 'Formato de email inválido');
+                } else {
+                    clearFieldError(emailError);
+                }
+            });
+            
+            // Validación de fortaleza de contraseña
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                checkPasswordStrength(password);
+                
+                if (password.length === 0) {
+                    showFieldError(passwordError, 'La contraseña es obligatoria');
+                } else if (password.length < 6) {
+                    showFieldError(passwordError, 'La contraseña debe tener al menos 6 caracteres');
+                } else if (!/[A-Za-z]/.test(password)) {
+                    showFieldError(passwordError, 'Debe contener al menos una letra');
+                } else if (!/\d/.test(password)) {
+                    showFieldError(passwordError, 'Debe contener al menos un número');
+                } else {
+                    clearFieldError(passwordError);
+                }
+                
+                // Validar confirmación si ya tiene valor
+                if (confirmPasswordInput.value) {
+                    validatePasswordConfirmation();
+                }
+            });
+            
+            // Validación de confirmación de contraseña
+            confirmPasswordInput.addEventListener('input', validatePasswordConfirmation);
+            
+            function validatePasswordConfirmation() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                if (confirmPassword.length === 0) {
+                    showFieldError(confirmPasswordError, 'Debes confirmar tu contraseña');
+                } else if (password !== confirmPassword) {
+                    showFieldError(confirmPasswordError, 'Las contraseñas no coinciden');
+                } else {
+                    clearFieldError(confirmPasswordError);
+                }
+            }
+            
+            // Verificar disponibilidad del email
+            function checkEmailAvailability(email) {
+                fetch(`{{ url_for('api.verificar_email') }}?email=${encodeURIComponent(email)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.disponible) {
+                            showFieldError(emailError, data.mensaje);
+                        } else {
+                            clearFieldError(emailError);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error verificando email:', error);
+                    });
+            }
+            
+            // Verificar fortaleza de contraseña
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                let feedback = '';
+                
+                if (password.length >= 6) strength++;
+                if (password.length >= 8) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[a-z]/.test(password)) strength++;
+                if (/\d/.test(password)) strength++;
+                if (/[^A-Za-z0-9]/.test(password)) strength++;
+                
+                if (password.length === 0) {
+                    feedback = '';
+                } else if (strength <= 2) {
+                    feedback = '<span class="strength-weak">Contraseña débil</span>';
+                } else if (strength <= 4) {
+                    feedback = '<span class="strength-medium">Contraseña media</span>';
+                } else {
+                    feedback = '<span class="strength-strong">Contraseña fuerte</span>';
+                }
+                
+                passwordStrength.innerHTML = feedback;
+            }
+            
+            // Funciones auxiliares
+            function showFieldError(errorElement, message) {
+                errorElement.textContent = message;
+                errorElement.parentElement.classList.add('error');
+            }
+            
+            function clearFieldError(errorElement) {
+                errorElement.textContent = '';
+                errorElement.parentElement.classList.remove('error');
+            }
+            
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+            
+            // Envío del formulario
+            form.addEventListener('submit', function(e) {
+                // Mostrar estado de carga
+                submitBtn.disabled = true;
+                submitText.style.display = 'none';
+                loadingText.style.display = 'inline';
+                form.classList.add('loading');
+            });
+        });
+    </script>
 </body>
 </html>

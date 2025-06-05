@@ -2,6 +2,7 @@ from flask import Flask, Blueprint, render_template
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mail import Mail
+from flask_wtf.csrf import CSRFProtect
 import os
 
 def create_app(config_class=None):
@@ -23,6 +24,9 @@ def create_app(config_class=None):
     
     # Inicializar extensiones
     db.init_app(app)
+    
+    # Inicializar CSRF Protection
+    csrf = CSRFProtect(app)
     
     # Inicializar Flask-Migrate
     migrate = Migrate(app, db)
@@ -65,6 +69,12 @@ def create_app(config_class=None):
         return render_template('home-page.html', recetas_recientes=recetas_recientes, categorias=categorias)
     
     app.register_blueprint(main_bp)
+    
+    # Contexto global para templates (hacer csrf_token disponible)
+    @app.context_processor
+    def inject_csrf_token():
+        from flask_wtf.csrf import generate_csrf
+        return dict(csrf_token=generate_csrf)
     
     # Asegurarse de que existan las carpetas para uploads
     with app.app_context():

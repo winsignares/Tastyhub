@@ -2,6 +2,17 @@ import os
 from datetime import timedelta
 
 class Config:
+    # Configuración de uploads
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads')
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    
+    # Configuración de Flask-WTF y CSRF
+    WTF_CSRF_ENABLED = True
+    WTF_CSRF_TIME_LIMIT = None  # Sin límite de tiempo para tokens CSRF
+    
+    # Configuración de sesiones
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+
     # Configuración general
     SECRET_KEY = os.environ.get('SECRET_KEY', 'clave_desarrollo_cambiar_en_produccion')
     DEBUG = os.environ.get('FLASK_ENV') == 'development'

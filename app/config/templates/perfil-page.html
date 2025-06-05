@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../static/css/styles.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Onest:wght@100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <title>Perfil Usuario</title>
+    <title>{{ usuario.nombre }} - Perfil</title>
     <style>
         .modal {
             position: fixed;
@@ -45,7 +45,6 @@
             cursor: pointer;
         }
         
-        /* Estilos para el modal de editar perfil */
         .editarPerfilModal .modalContenido {
             max-width: 600px;
         }
@@ -116,315 +115,477 @@
             padding-left: 20px;
             margin-top: 5px;
         }
+        
+        .alert {
+            padding: 12px 16px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .btn-seguir {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .btn-dejar-seguir {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .usuario-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .botones-perfil {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
     <header class="encabezado">
         <div class="contenedor">
-          <h1 class="logo">Recetas Sencillas</h1>
+          <h1 class="logo">
+            <a href="{{ url_for('main.index') }}" style="text-decoration: none; color: inherit;">
+              Recetas Sencillas
+            </a>
+          </h1>
           <nav class="navegacion">
             <ul>
-              <li><a href="#">Inicio</a></li>
-              <li><a href="#">Desayunos</a></li>
-              <li><a href="#">Almuerzos</a></li>
-              <li><a href="#">Postres</a></li>
-              <li><a href="#">Contacto</a></li>
+              <li><a href="{{ url_for('main.index') }}">Inicio</a></li>
+              <li><a href="{{ url_for('api.listar_recetas') }}">Recetas</a></li>
+              <li><a href="{{ url_for('api.nueva_receta') }}">Crear Receta</a></li>
+              {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('api.ver_perfil', usuario_id=current_user.id) }}">Mi Perfil</a></li>
+              {% endif %}
             </ul>
           </nav>
           <div class="botones-header">
-            <img src="https://highxtar.com/wp-content/uploads/2024/08/thumb-drake-leak-1440x1080.jpg" alt="Foto de perfil" class="avatarUsuarioSesion" />
+            {% if current_user.is_authenticated %}
+              <div class="usuario-info">
+                <img src="{{ url_for('static', filename=current_user.foto_perfil) if current_user.foto_perfil != 'default.jpg' else 'https://via.placeholder.com/40x40?text=U' }}" 
+                     alt="Foto de perfil" class="avatarUsuarioSesion" />
+                <span>{{ current_user.nombre }}</span>
+                <a href="{{ url_for('api.logout') }}">
+                  <button class="btn-transparente">Cerrar Sesión</button>
+                </a>
+              </div>
+            {% else %}
+              <a href="{{ url_for('api.login') }}">
+                <button class="btn-transparente">Iniciar Sesión</button>
+              </a>
+              <a href="{{ url_for('api.register') }}">
+                <button class="btn-blanco">Registrarse</button>
+              </a>
+            {% endif %}
           </div>
         </div>
-      </header>
-      <main class="contenedor principal">
+    </header>
+
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="contenedor">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="contenedor principal">
         <section class="perfilUsuario">
             <div class="infoUsuario">
-            <img src="https://highxtar.com/wp-content/uploads/2024/08/thumb-drake-leak-1440x1080.jpg" alt="Foto de perfil" class="avatarUsuario" />
-            <div class="datosUsuario">
-                <h2 class="nombreUsuario">Camilo Ternera Duque</h2>
-                <p class="descripcionUsuario">Amante de la cocina rápida y saludable. ¡Me encanta compartir recetas!</p>
-                <div class="estadisticas">
-                <div>
-                    <p class="numero">150</p>
-                    <p class="etiqueta">Seguidos</p>
-                </div>
-                <div>
-                    <p class="numero">104</p>
-                    <p class="etiqueta">Me gusta</p>
-                </div>
-                <div>
-                    <p class="numero">15</p>
-                    <p class="etiqueta">Recetas</p>
-                </div>
-                </div>
-            </div>
-            </div>
-            <div class="accionesUsuario">
-                <button class="botonAccion redondo" id="abrirModal">+</button>
-                <button class="botonAccion cuadrado" id="abrirModalEditar">✏️</button>
-            </div>
-        </section>
-    
-        <!-- Pestañas -->
-        <nav class="pestanas">
-            <button class="pestana activa">Mis recetas</button>
-            <button class="pestana">Mis favoritos</button>
-        </nav>
-        <section class="grid-recetas">
-            <article class="tarjeta-receta">
-              <div class="imagen" style="background-image: url(https://www.beloleum.com/wp-content/uploads/2023/11/hamburguesas-caseras-gourmet.png);"></div>
-              <div class="contenido">
-                <h3>Nombre de la receta</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                <div class="footer-tarjeta">
-                  <span>Hace 15 minutos</span>
-                  <span class="corazon">♡</span>
-                </div>
-              </div>
-            </article>
-            <article class="tarjeta-receta">
-              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-              <div class="contenido">
-                <h3>Nombre de la receta</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                <div class="footer-tarjeta">
-                  <span>Hace 15 minutos</span>
-                  <span class="corazon">♡</span>
-                </div>
-              </div>
-            </article>
-            <article class="tarjeta-receta">
-              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-              <div class="contenido">
-                <h3>Nombre de la receta</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                <div class="footer-tarjeta">
-                  <span>Hace 15 minutos</span>
-                  <span class="corazon">♡</span>
-                </div>
-              </div>
-            </article>
-            <article class="tarjeta-receta">
-              <div class="imagen" style="background-image: url(https://content.elmueble.com/medio/2023/05/23/tacos_fcb4f631_00541381_230523124558_1500x2032.jpg);"></div>
-              <div class="contenido">
-                <h3>Nombre de la receta</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                <div class="footer-tarjeta">
-                  <span>Hace 15 minutos</span>
-                  <span class="corazon">♡</span>
-                </div>
-              </div>
-            </article>
-            <article class="tarjeta-receta">
-              <div class="imagen" style="background-image: url(https://c.files.bbci.co.uk/DBBF/production/_105055265_bandejapaisa.jpg);"></div>
-              <div class="contenido">
-                <h3>Nombre de la receta</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                <div class="footer-tarjeta">
-                  <span>Hace 15 minutos</span>
-                  <span class="corazon">♡</span>
-                </div>
-              </div>
-            </article>
-            <article class="tarjeta-receta">
-              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-              <div class="contenido" >
-                <h3>Nombre de la receta</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                <div class="footer-tarjeta">
-                  <span>Hace 15 minutos</span>
-                  <span class="corazon">♡</span>
-                </div>
-              </div>
-            </article>
-            <article class="tarjeta-receta">
-              <div class="imagen" style="background-image: url(https://www.bupasalud.com.co/sites/default/files/inline-images/bupa_598072389.jpg);"></div>
-              <div class="contenido">
-                <h3>Nombre de la receta</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                <div class="footer-tarjeta">
-                  <span>Hace 15 minutos</span>
-                  <span class="corazon">♡</span>
-                </div>
-              </div>
-            </article>
-          </section>
-      
-    </main>
-    <!-- MODAL NUEVA RECETA -->
-    <div id="modalReceta" class="modal oculto">
-        <div class="modalContenido">
-        <button class="cerrarModal">&times;</button>
-        <h2>Nueva receta</h2>
-        <div class="formularioReceta">
-            <div class="columnaPortada">
-                <h3>Portada</h3>
-              
-                <label class="portadaImg" for="archivoPortada">
-                  <input type="file" id="archivoPortada" accept="image/png, image/jpeg" hidden />
-                  <img id="previewPortada" alt="Vista previa" />
-                </label>
-              
-                <label class="subirArchivo">Adjunte su archivo</label>
-                <small>Formatos permitidos:</small>
-                <ul>
-                  <li>Archivo .PNG</li>
-                  <li>Archivo .JPG</li>
-                </ul>
-              </div>
-            <div class="columnaCampos">
-            <label for="titulo"><strong>Titulo</strong></label>
-            <input type="text" id="titulo" placeholder="Título Ejemplo" />
-    
-            <label for="descripcion"><strong>Descripcion</strong></label>
-            <textarea id="descripcion" placeholder="Lorem ipsum..."></textarea>
-    
-            <label for="instruccion"><strong>Primera Instruccion</strong></label>
-            <input type="text" id="instruccion" placeholder="..." />
-    
-            <button class="agregarInstruccion">Agregar Instruccion</button>
-            </div>
-        </div>
-        <button class="agregarReceta">Agregar Receta</button>
-        </div>
-    </div>
-
-    <!-- MODAL EDITAR PERFIL -->
-    <div id="modalEditarPerfil" class="modal oculto editarPerfilModal">
-        <div class="modalContenido">
-            <button class="cerrarModal">&times;</button>
-            <h2>Editar Perfil</h2>
-            
-            <div class="formPerfil">
-                <div style="text-align: center;">
-                    <label for="fotoPerfil">
-                        <div class="fotoPerfil">
-                            <img id="previewFotoPerfil" src="https://highxtar.com/wp-content/uploads/2024/08/thumb-drake-leak-1440x1080.jpg" alt="Foto de perfil">
+                <img src="{{ url_for('static', filename=usuario.foto_perfil) if usuario.foto_perfil != 'default.jpg' else 'https://via.placeholder.com/150x150?text=' + usuario.nombre[0] }}" 
+                     alt="Foto de perfil de {{ usuario.nombre }}" class="avatarUsuario" />
+                <div class="datosUsuario">
+                    <h2 class="nombreUsuario">{{ usuario.nombre }}</h2>
+                    <p class="descripcionUsuario">
+                        {{ usuario.descripcion if usuario.descripcion else 'Sin descripción disponible' }}
+                    </p>
+                    <div class="estadisticas">
+                        <div>
+                            <p class="numero">{{ usuario.contar_seguidos() }}</p>
+                            <p class="etiqueta">Seguidos</p>
                         </div>
-                        <p class="cambiarFoto">Cambiar foto de perfil</p>
-                        <input type="file" id="fotoPerfil" accept="image/png, image/jpeg" hidden>
-                    </label>
-                    <div class="formatosPermitidos">
-                        <p>Formatos permitidos:</p>
-                        <ul>
-                            <li>Archivo .PNG</li>
-                            <li>Archivo .JPG</li>
-                        </ul>
+                        <div>
+                            <p class="numero">{{ total_me_gustas or 0 }}</p>
+                            <p class="etiqueta">Me gusta</p>
+                        </div>
+                        <div>
+                            <p class="numero">{{ recetas|length }}</p>
+                            <p class="etiqueta">Recetas</p>
+                        </div>
+                        <div>
+                            <p class="numero">{{ usuario.contar_seguidores() }}</p>
+                            <p class="etiqueta">Seguidores</p>
+                        </div>
                     </div>
                 </div>
-                
-                <label for="nombreUsuario">Nombre de usuario</label>
-                <input type="text" id="nombreUsuario" value="Camilo Ternera Duque">
-                
-                <label for="emailUsuario">Email</label>
-                <input type="email" id="emailUsuario" value="Camilo_TD@gmail.com">
-                
-                <label for="passwordUsuario">Contraseña</label>
-                <input type="password" id="passwordUsuario" value="••••••••••••••••">
-                
-                <label for="descripcionUsuario">Descripción</label>
-                <textarea id="descripcionUsuario">Amante de la cocina rápida y saludable. ¡Me encanta compartir recetas!</textarea>
-                
-                <button class="guardarBtn">Guardar</button>
+            </div>
+            
+            <div class="accionesUsuario">
+                {% if current_user.is_authenticated and current_user.id == usuario.id %}
+                    <!-- Botones para el usuario actual -->
+                    <button class="botonAccion redondo" id="abrirModal" title="Crear nueva receta">+</button>
+                    <button class="botonAccion cuadrado" id="abrirModalEditar" title="Editar perfil">✏️</button>
+                {% elif current_user.is_authenticated %}
+                    <!-- Botones para otros usuarios -->
+                    <div class="botones-perfil">
+                        {% if es_seguidor %}
+                            <form method="POST" action="{{ url_for('api.dejar_de_seguir', usuario_id=usuario.id) }}" style="display: inline;">
+                                {% if csrf_token %}
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                {% endif %}
+                                <button type="submit" class="btn-dejar-seguir">Dejar de seguir</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('api.seguir_usuario', usuario_id=usuario.id) }}" style="display: inline;">
+                                {% if csrf_token %}
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                {% endif %}
+                                <button type="submit" class="btn-seguir">Seguir</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Pestañas -->
+        <nav class="pestanas">
+            <button class="pestana activa" data-tab="mis-recetas">Mis recetas ({{ recetas|length }})</button>
+            {% if current_user.is_authenticated and current_user.id == usuario.id %}
+                <button class="pestana" data-tab="mis-favoritos">Mis favoritos</button>
+            {% endif %}
+        </nav>
+
+        <!-- Contenido de las pestañas -->
+        <section class="grid-recetas" id="mis-recetas">
+            {% if recetas %}
+                {% for receta in recetas %}
+                    <article class="tarjeta-receta">
+                        <div class="imagen" 
+                             style="background-image: url({{ url_for('static', filename=receta.imagen_portada) if receta.imagen_portada else 'https://via.placeholder.com/300x200?text=Sin+Imagen' }});">
+                        </div>
+                        <div class="contenido">
+                            <h3>
+                                <a href="{{ url_for('api.ver_receta', receta_id=receta.id) }}" style="text-decoration: none; color: inherit;">
+                                    {{ receta.titulo }}
+                                </a>
+                            </h3>
+                            <p>{{ receta.descripcion[:100] }}{% if receta.descripcion|length > 100 %}...{% endif %}</p>
+                            
+                            <div class="info-receta" style="margin: 10px 0; font-size: 14px; color: #666;">
+                                {% if receta.tiempor_pre %}
+                                    <span>⏱️ {{ receta.tiempor_pre }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="footer-tarjeta">
+                                <span>{{ receta.fecha_creacion.strftime('%d/%m/%Y') }}</span>
+                                <div class="acciones-receta">
+                                    <span class="me-gustas">❤️ {{ receta.contar_me_gustas() if receta.contar_me_gustas else 0 }}</span>
+                                    {% if current_user.is_authenticated and current_user.id == usuario.id %}
+                                        <div class="acciones-autor">
+                                            <a href="{{ url_for('api.editar_receta', receta_id=receta.id) }}" title="Editar receta">✏️</a>
+                                            <form method="POST" action="{{ url_for('api.eliminar_receta', receta_id=receta.id) }}" 
+                                                  style="display: inline;" 
+                                                  onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta receta?')">
+                                                {% if csrf_token %}
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                {% endif %}
+                                                <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer;" title="Eliminar receta">🗑️</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="no-recetas" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                    {% if current_user.is_authenticated and current_user.id == usuario.id %}
+                        <h3>Aún no has creado ninguna receta</h3>
+                        <p>¡Comparte tu primera receta deliciosa con la comunidad!</p>
+                        <button class="btn-primary" id="crearPrimeraReceta" style="margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Crear Mi Primera Receta
+                        </button>
+                    {% else %}
+                        <h3>{{ usuario.nombre }} aún no ha compartido recetas</h3>
+                        <p>Mantente atento para cuando publique algo delicioso!</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+        {% if current_user.is_authenticated and current_user.id == usuario.id %}
+            <section class="grid-recetas oculto" id="mis-favoritos">
+                <div class="no-recetas" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                    <h3>Funcionalidad de favoritos próximamente</h3>
+                    <p>Pronto podrás ver todas las recetas que has marcado como favoritas.</p>
+                </div>
+            </section>
+        {% endif %}
+    </main>
+
+    <!-- MODAL NUEVA RECETA -->
+    {% if current_user.is_authenticated and current_user.id == usuario.id %}
+        <div id="modalReceta" class="modal oculto">
+            <div class="modalContenido">
+                <button class="cerrarModal">&times;</button>
+                <h2>Nueva receta</h2>
+                <form method="POST" action="{{ url_for('api.nueva_receta') }}" enctype="multipart/form-data" id="formNuevaReceta">
+                    {% if csrf_token %}
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% endif %}
+                    <div class="formularioReceta">
+                        <div class="columnaPortada">
+                            <h3>Portada</h3>
+                            <label class="portadaImg" for="archivoPortada">
+                                <input type="file" id="archivoPortada" name="imagen_portada" accept="image/png, image/jpeg" hidden />
+                                <img id="previewPortada" alt="Vista previa" />
+                            </label>
+                            <label class="subirArchivo">Adjunte su archivo</label>
+                            <small>Formatos permitidos:</small>
+                            <ul>
+                                <li>Archivo .PNG</li>
+                                <li>Archivo .JPG</li>
+                            </ul>
+                        </div>
+                        <div class="columnaCampos">
+                            <label for="titulo"><strong>Titulo *</strong></label>
+                            <input type="text" id="titulo" name="titulo" placeholder="Título de tu receta" required />
+                            
+                            <label for="descripcion"><strong>Descripción</strong></label>
+                            <textarea id="descripcion" name="descripcion" placeholder="Describe tu receta..."></textarea>
+                            
+                            <label for="tiempo_preparacion"><strong>Tiempo de preparación</strong></label>
+                            <input type="text" id="tiempo_preparacion" name="tiempo_preparacion" placeholder="Ej: 30 minutos" />
+                            
+                            <label for="instruccion"><strong>Primera Instrucción *</strong></label>
+                            <input type="text" name="instruccion" placeholder="Describe el primer paso..." required />
+                            
+                            <div id="instrucciones-container"></div>
+                            <button type="button" class="agregarInstruccion">Agregar Instrucción</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="agregarReceta">Crear Receta</button>
+                </form>
             </div>
         </div>
-    </div>
+
+        <!-- MODAL EDITAR PERFIL -->
+        <div id="modalEditarPerfil" class="modal oculto editarPerfilModal">
+            <div class="modalContenido">
+                <button class="cerrarModal">&times;</button>
+                <h2>Editar Perfil</h2>
+                
+                <form method="POST" action="{{ url_for('api.editar_perfil') }}" enctype="multipart/form-data" class="formPerfil">
+                    {% if csrf_token %}
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% endif %}
+                    
+                    <div style="text-align: center;">
+                        <label for="fotoPerfil">
+                            <div class="fotoPerfil">
+                                <img id="previewFotoPerfil" 
+                                     src="{{ url_for('static', filename=usuario.foto_perfil) if usuario.foto_perfil != 'default.jpg' else 'https://via.placeholder.com/150x150?text=' + usuario.nombre[0] }}" 
+                                     alt="Foto de perfil">
+                            </div>
+                            <p class="cambiarFoto">Cambiar foto de perfil</p>
+                            <input type="file" id="fotoPerfil" name="foto_perfil" accept="image/png, image/jpeg" hidden>
+                        </label>
+                        <div class="formatosPermitidos">
+                            <p>Formatos permitidos:</p>
+                            <ul>
+                                <li>Archivo .PNG</li>
+                                <li>Archivo .JPG</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <label for="nombreUsuario">Nombre de usuario *</label>
+                    <input type="text" id="nombreUsuario" name="nombre" value="{{ usuario.nombre }}" required>
+                    
+                    <label for="descripcionUsuario">Descripción</label>
+                    <textarea id="descripcionUsuario" name="descripcion">{{ usuario.descripcion if usuario.descripcion else '' }}</textarea>
+                    
+                    <button type="submit" class="guardarBtn">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
 
     <script>
-        // Script para modal de Nueva Receta (existente)
-        const abrirModalBtn = document.getElementById('abrirModal');
-        const modal = document.getElementById('modalReceta');
-        const cerrarModalBtn = document.querySelector('#modalReceta .cerrarModal');
-      
-        abrirModalBtn.addEventListener('click', () => {
-          modal.classList.remove('oculto');
-        });
-      
-        cerrarModalBtn.addEventListener('click', () => {
-          modal.classList.add('oculto');
-        });
-      
-        // Opcional: cerrar modal haciendo clic fuera del contenido
-        window.addEventListener('click', (e) => {
-          if (e.target === modal) {
-            modal.classList.add('oculto');
-          }
-        });
-
-        const archivoInput = document.getElementById("archivoPortada");
-        const previewImg = document.getElementById("previewPortada");
-
-        archivoInput.addEventListener("change", (event) => {
-            const file = event.target.files[0];
-            if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewImg.src = e.target.result;
-                previewImg.style.display = "block";
-            };
-            reader.readAsDataURL(file);
-            } else {
-            previewImg.src = "";
-            previewImg.style.display = "none";
-            }
-        });
-        
-        // Script para modal de Editar Perfil (nuevo)
-        const abrirModalEditarBtn = document.getElementById('abrirModalEditar');
-        const modalEditarPerfil = document.getElementById('modalEditarPerfil');
-        const cerrarModalEditarBtn = document.querySelector('#modalEditarPerfil .cerrarModal');
-        
-        abrirModalEditarBtn.addEventListener('click', () => {
-            modalEditarPerfil.classList.remove('oculto');
-        });
-        
-        cerrarModalEditarBtn.addEventListener('click', () => {
-            modalEditarPerfil.classList.add('oculto');
-        });
-        
-        // Cerrar modal de editar perfil haciendo clic fuera del contenido
-        window.addEventListener('click', (e) => {
-            if (e.target === modalEditarPerfil) {
-                modalEditarPerfil.classList.add('oculto');
-            }
-        });
-        
-        // Vista previa de la foto del perfil
-        const fotoPerfilInput = document.getElementById("fotoPerfil");
-        const previewFotoPerfil = document.getElementById("previewFotoPerfil");
-        
-        fotoPerfilInput.addEventListener("change", (event) => {
-            const file = event.target.files[0];
-            if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewFotoPerfil.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-        
-        // Funcionalidad para guardar el perfil
-        const guardarPerfilBtn = document.querySelector('.guardarBtn');
-        guardarPerfilBtn.addEventListener('click', () => {
-            // Obtener valores editados
-            const nombreUsuario = document.getElementById('nombreUsuario').value;
-            const descripcionUsuario = document.getElementById('descripcionUsuario').value;
-            
-            // Actualizar la página con los nuevos valores
-            document.querySelector('.nombreUsuario').textContent = nombreUsuario;
-            document.querySelector('.descripcionUsuario').textContent = descripcionUsuario;
-            
-            // También actualizar foto de perfil si se cambió
-            if (previewFotoPerfil.src) {
-                const avatares = document.querySelectorAll('.avatarUsuario, .avatarUsuarioSesion');
-                avatares.forEach(avatar => {
-                    avatar.src = previewFotoPerfil.src;
+        // Funcionalidad de pestañas
+        document.querySelectorAll('.pestana').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remover clase activa de todas las pestañas
+                document.querySelectorAll('.pestana').forEach(t => t.classList.remove('activa'));
+                // Agregar clase activa a la pestaña clickeada
+                this.classList.add('activa');
+                
+                // Ocultar todas las secciones
+                document.querySelectorAll('.grid-recetas').forEach(section => {
+                    section.classList.add('oculto');
                 });
+                
+                // Mostrar la sección correspondiente
+                const targetSection = document.getElementById(this.dataset.tab);
+                if (targetSection) {
+                    targetSection.classList.remove('oculto');
+                }
+            });
+        });
+
+        {% if current_user.is_authenticated and current_user.id == usuario.id %}
+            // Scripts para modales (solo para el usuario propietario)
+            const abrirModalBtn = document.getElementById('abrirModal');
+            const crearPrimeraRecetaBtn = document.getElementById('crearPrimeraReceta');
+            const modal = document.getElementById('modalReceta');
+            const cerrarModalBtn = document.querySelector('#modalReceta .cerrarModal');
+          
+            function abrirModalReceta() {
+                modal.classList.remove('oculto');
+            }
+
+            if (abrirModalBtn) {
+                abrirModalBtn.addEventListener('click', abrirModalReceta);
             }
             
-            // Cerrar el modal
-            modalEditarPerfil.classList.add('oculto');
+            if (crearPrimeraRecetaBtn) {
+                crearPrimeraRecetaBtn.addEventListener('click', abrirModalReceta);
+            }
+          
+            cerrarModalBtn.addEventListener('click', () => {
+                modal.classList.add('oculto');
+            });
+          
+            // Cerrar modal haciendo clic fuera del contenido
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('oculto');
+                }
+            });
+
+            // Vista previa de imagen de portada
+            const archivoInput = document.getElementById("archivoPortada");
+            const previewImg = document.getElementById("previewPortada");
+
+            archivoInput.addEventListener("change", (event) => {
+                const file = event.target.files[0];
+                if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = "block";
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewImg.src = "";
+                    previewImg.style.display = "none";
+                }
+            });
+            
+            // Agregar instrucciones dinámicamente
+            let contadorInstrucciones = 1;
+            document.querySelector('.agregarInstruccion').addEventListener('click', function() {
+                contadorInstrucciones++;
+                const container = document.getElementById('instrucciones-container');
+                const nuevaInstruccion = document.createElement('div');
+                nuevaInstruccion.innerHTML = `
+                    <label for="instruccion-${contadorInstrucciones}"><strong>Instrucción ${contadorInstrucciones}</strong></label>
+                    <input type="text" name="instruccion" placeholder="Describe el paso ${contadorInstrucciones}..." />
+                `;
+                container.appendChild(nuevaInstruccion);
+            });
+            
+            // Modal de editar perfil
+            const abrirModalEditarBtn = document.getElementById('abrirModalEditar');
+            const modalEditarPerfil = document.getElementById('modalEditarPerfil');
+            const cerrarModalEditarBtn = document.querySelector('#modalEditarPerfil .cerrarModal');
+            
+            abrirModalEditarBtn.addEventListener('click', () => {
+                modalEditarPerfil.classList.remove('oculto');
+            });
+            
+            cerrarModalEditarBtn.addEventListener('click', () => {
+                modalEditarPerfil.classList.add('oculto');
+            });
+            
+            // Cerrar modal de editar perfil haciendo clic fuera del contenido
+            window.addEventListener('click', (e) => {
+                if (e.target === modalEditarPerfil) {
+                    modalEditarPerfil.classList.add('oculto');
+                }
+            });
+            
+            // Vista previa de la foto del perfil
+            const fotoPerfilInput = document.getElementById("fotoPerfil");
+            const previewFotoPerfil = document.getElementById("previewFotoPerfil");
+            
+            fotoPerfilInput.addEventListener("change", (event) => {
+                const file = event.target.files[0];
+                if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewFotoPerfil.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        {% endif %}
+        
+        // Ocultar alertas automáticamente después de 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s ease';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
         });
     </script>
 </body>
