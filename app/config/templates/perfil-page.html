@@ -185,14 +185,7 @@
             </a>
           </h1>
           <nav class="navegacion">
-            <ul>
-              <li><a href="{{ url_for('main.index') }}">Inicio</a></li>
-              <li><a href="{{ url_for('api.listar_recetas') }}">Recetas</a></li>
-              <li><a href="{{ url_for('api.nueva_receta') }}">Crear Receta</a></li>
-              {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('api.ver_perfil', usuario_id=current_user.id) }}">Mi Perfil</a></li>
-              {% endif %}
-            </ul>
+            
           </nav>
           <div class="botones-header">
             {% if current_user.is_authenticated %}
